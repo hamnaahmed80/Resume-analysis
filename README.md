@@ -86,27 +86,23 @@ Google Sheets
 
 ## 🔹 Workflow
 
-![Workflow](screenshots/workflow.png)
+![Workflow](ScreenShot/workflow.png)
 
 ---
 
 ## 🔹 Resume Upload Form
 
-![Upload Form](screenshots/form.png)
+![Upload Form](ScreenShot/form.png)
 
 ---
 
 ## 🔹 AI Resume Analysis
 
-![AI Output](screenshots/output.png)
+![AI Output](ScreenShot/output(2).png)
 
 ---
 
-## 🔹 Google Sheets Database
 
-![Google Sheets](screenshots/google_sheets.png)
-
----
 
 # 📊 Sample Output
 
