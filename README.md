@@ -98,7 +98,7 @@ Google Sheets
 
 ## 🔹 AI Resume Analysis
 
-![AI Output](ScreenShot/output(2).png)
+![AI Output](ScreenShot/outputt.png)
 
 ---
 
@@ -126,31 +126,6 @@ Google Sheets
 }
 ```
 
----
-
-# 📂 Project Structure
-
-```
-AI-Resume-Analyzer-n8n/
-│
-├── README.md
-│
-├── workflow/
-│   └── ai_resume_analyzer.json
-│
-├── prompts/
-│   └── system_prompt.txt
-│
-├── screenshots/
-│   ├── workflow.png
-│   ├── form.png
-│   ├── output.png
-│   ├── google_sheets.png
-│   └── upload_resume.png
-│
-└── sample_resume/
-    └── sample_resume.pdf
-```
 
 ---
 
