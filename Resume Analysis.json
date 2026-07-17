@@ -1,0 +1,310 @@
+{
+  "name": "Resume Analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Resume Analyser",
+        "formDescription": "Upload your resume",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Resume",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ed96dd4c-6d93-4f00-abdb-209dca9cfd83",
+      "name": "On form submission",
+      "webhookId": "4b448b40-999f-4c09-bcbe-455e181023bf"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "fa7639c8-0fe5-4dc3-868f-937acb69814d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert ATS Resume Analyzer and HR Recruiter.\n\nAnalyze the resume below.\n\nReturn:\n\n1. ATS Score (0-100)\n2. Resume Summary\n3. Technical Skills\n4. Soft Skills\n5. Missing Skills\n6. Strengths\n7. Weaknesses\n8. Recommended Improvements\n9. Best Job Roles\n\nResume:\n\n{{ $('Extract from File').item.json.text }}\n\nReturn ONLY valid JSON.\n\nDo NOT wrap the response inside ```json or ```.\n\nDo NOT use Markdown.\n\nReturn a plain JSON object only.",
+        "options": {
+          "systemMessage": "You are an expert ATS Resume Analyzer and HR Recruiter.\n\nAnalyze the uploaded resume and provide:\n\n1. ATS Score (0-100)\n2. Resume Summary\n3. Technical Skills\n4. Soft Skills\n5. Missing Skills\n6. Strengths\n7. Weaknesses\n8. Recommended Improvements\n9. Best Job Roles\n\nReturn ONLY valid JSON.\n\nExample:\n\n{\n  \"ats_score\": 85,\n  \"summary\": \"...\",\n  \"technical_skills\": [],\n  \"soft_skills\": [],\n  \"missing_skills\": [],\n  \"strengths\": [],\n  \"weaknesses\": [],\n  \"recommendations\": [],\n  \"best_job_roles\": []\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "2edb2682-de91-46ab-95ac-9ceb331ae4cf",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        288,
+        208
+      ],
+      "id": "a39bcf99-75f7-4a3e-90c9-388da87e2f2e",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "0HrdohBMq0YGEv3n",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.output;\n\nconst cleaned = text\n  .replace(/^```json\\s*/i, \"\")\n  .replace(/\\s*```$/i, \"\")\n  .trim();\n\nreturn [\n  {\n    json: JSON.parse(cleaned)\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "7caf9943-9722-4e3b-8f39-162c20b6a2c6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1BdtEYyXv92PcghzIGP_FfkX9Ua_2SwCX8k7D_0N6Zqs",
+          "mode": "list",
+          "cachedResultName": "Resume Analysis Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BdtEYyXv92PcghzIGP_FfkX9Ua_2SwCX8k7D_0N6Zqs/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1BdtEYyXv92PcghzIGP_FfkX9Ua_2SwCX8k7D_0N6Zqs/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ATS Score": "={{ $json.ats_score }}",
+            "Summary": "={{ $json.summary }}",
+            "Technical Skills": "={{ $json.technical_skills.join(\", \") }}",
+            "Soft Skills": "={{ $json.soft_skills.join(\", \") }}",
+            "Missing Skills": "={{ $json.missing_skills.join(\", \") }}",
+            "Strengths": "={{ $json.strengths.join(\", \") }}",
+            "Weaknesses": "={{ $json.weaknesses.join(\", \") }}",
+            "Recommendations": "={{ $json.recommendations.join(\", \") }}",
+            "Best Job Roles": "={{ $json.best_job_roles.join(\", \") }}",
+            "Date": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ATS Score",
+              "displayName": "ATS Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Technical Skills",
+              "displayName": "Technical Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Soft Skills",
+              "displayName": "Soft Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Missing Skills",
+              "displayName": "Missing Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Strengths",
+              "displayName": "Strengths",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Weaknesses",
+              "displayName": "Weaknesses",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommendations",
+              "displayName": "Recommendations",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Best Job Roles",
+              "displayName": "Best Job Roles",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        0
+      ],
+      "id": "ed5842dd-c991-42e2-bfde-b1bd9dfc7982",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sdObRCWtN1cAXHua",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5832a479-c73a-4cff-a841-d83a511e4e09",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8ffcf5b865b12de9231de60820d869876310f18fd0b7e245bdd21f9b32dacafe"
+  },
+  "nodeGroups": [],
+  "id": "Xlce6ZEIorcexy8j",
+  "tags": []
+}
